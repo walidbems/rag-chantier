@@ -65,8 +65,8 @@
   });
 
   function openChantier(chantier) {
-    state.sessionId = crypto.randomUUID();
     state.activeChantier = chantier;
+    state.sessionId = crypto.randomUUID();
     $("#chat-chantier-label").textContent = `${chantier.code} – ${chantier.nom}`;
     $("#history-chantier-label").textContent = `Historique — ${chantier.code}`;
     resetThread();
@@ -114,13 +114,41 @@
   $("#attachment-input").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      state.pendingImage = { file, dataUrl: reader.result };
-      showAttachmentPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    resizeImage(file, 1024, 0.7).then((dataUrl) => {
+      state.pendingImage = { file, dataUrl };
+      showAttachmentPreview(dataUrl);
+    });
   });
+
+  // Redimensionne et compresse une image côté client avant l'envoi — une
+  // photo brute de téléphone peut faire plusieurs Mo en base64, ce qui fait
+  // échouer la requête réseau. On la ramène à une taille raisonnable tout en
+  // gardant assez de détail pour la lecture par le modèle de vision.
+  function resizeImage(file, maxDimension, quality) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   function showAttachmentPreview(dataUrl) {
     const preview = $("#attachment-preview");
@@ -201,7 +229,7 @@
       audio: audioDataUrl,
       image: imageDataUrl,
       chantier_id: state.activeChantier.id,
-      session_id: state.sessionId,
+      session_id: state.sessionId
     };
 
     clearAttachment();
