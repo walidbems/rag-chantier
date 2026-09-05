@@ -200,7 +200,8 @@
       texte: text || null,
       audio: audioDataUrl,
       image: imageDataUrl,
-      chantier_id: state.activeChantier.id
+      chantier_id: state.activeChantier.id,
+      session_id: state.sessionId,
     };
 
     clearAttachment();
