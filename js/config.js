@@ -4,7 +4,7 @@
 const CONFIG = {
   // URL du node Webhook du Workflow #2 (Recherche) une fois publié dans n8n.
   // Exemple : "https://<ton-instance>.app.n8n.cloud/webhook/recherche-chantier"
-  SEARCH_WEBHOOK_URL: "https://bems.app.n8n.cloud/webhook-test/5c7939ef-67fa-4108-bdb6-50eb4905cbdb",
+  SEARCH_WEBHOOK_URL: "https://bems.app.n8n.cloud/webhook/5c7939ef-67fa-4108-bdb6-50eb4905cbdb",
 
   // URL du webhook qui retourne l'historique d'un chantier (optionnel,
   // peut être le même workflow avec une route différente).
