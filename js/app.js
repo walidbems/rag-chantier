@@ -65,6 +65,7 @@
   });
 
   function openChantier(chantier) {
+    state.sessionId = crypto.randomUUID();
     state.activeChantier = chantier;
     $("#chat-chantier-label").textContent = `${chantier.code} – ${chantier.nom}`;
     $("#history-chantier-label").textContent = `Historique — ${chantier.code}`;
