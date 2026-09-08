@@ -8,7 +8,7 @@ const CONFIG = {
 
   // URL du webhook qui retourne l'historique d'un chantier (optionnel,
   // peut être le même workflow avec une route différente).
-  HISTORY_WEBHOOK_URL: "",
+  HISTORY_WEBHOOK_URL: "https://bems.app.n8n.cloud/webhook/06aee4a7-a6f0-468f-96ef-be79ca5f1763",
 
   // Liste des chantiers CSEM. À terme, ceci viendra de Supabase (table
   // "chantiers") via un appel au chargement de l'app plutôt qu'en dur ici.
