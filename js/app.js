@@ -300,12 +300,26 @@
           <span class="history-card__date">${escapeHtml(item.date)}</span>
           <span class="history-card__query">${escapeHtml(item.query)}</span>
         `;
-        btn.addEventListener("click", () => showScreen("chat"));
+        btn.addEventListener("click", () => loadHistoryItem(item));
         list.appendChild(btn);
       });
     } catch (err) {
       list.innerHTML = `<p class="history-empty">Erreur de chargement de l'historique.</p>`;
     }
+  }
+
+  // Charge un échange de l'historique dans le fil de discussion —
+  // NOUVEAU : avant ce correctif, le clic changeait juste d'écran sans
+  // jamais afficher la question ni la réponse de l'échange sélectionné.
+  function loadHistoryItem(item) {
+    resetThread();
+    appendMessage({ role: "user", text: item.query });
+    appendMessage({
+      role: "reply",
+      text: item.reponse || "Pas de réponse enregistrée.",
+      reference: item.reference || null
+    });
+    showScreen("chat");
   }
 
   // ---------------------------------------------------------------
