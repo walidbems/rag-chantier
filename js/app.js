@@ -10,7 +10,8 @@
     pendingImage: null,     // { file, dataUrl }
     isRecording: false,
     mediaRecorder: null,
-    audioChunks: []
+    audioChunks: [],
+    historyItems: []        // dernière liste d'historique chargée (pour regrouper par session)
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -286,6 +287,7 @@
       const url = `${CONFIG.HISTORY_WEBHOOK_URL}?chantier_id=${state.activeChantier.id}`;
       const res = await fetch(url);
       const items = await res.json();
+      state.historyItems = items; // gardé en mémoire pour reconstituer une session au clic
 
       if (!items.length) {
         list.innerHTML = `<p class="history-empty">Aucune recherche pour ce chantier.</p>`;
@@ -308,17 +310,33 @@
     }
   }
 
-  // Charge un échange de l'historique dans le fil de discussion —
-  // NOUVEAU : avant ce correctif, le clic changeait juste d'écran sans
-  // jamais afficher la question ni la réponse de l'échange sélectionné.
+  // Charge un échange de l'historique dans le fil de discussion. Si l'échange
+  // fait partie d'une session à plusieurs questions (même session_id), on
+  // reconstitue TOUTE la session dans l'ordre chronologique — pas juste
+  // l'échange cliqué. Si session_id est absent (anciennes lignes avant le
+  // correctif backend) ou si un seul échange existe pour cette session, on
+  // affiche simplement cet échange seul.
   function loadHistoryItem(item) {
     resetThread();
-    appendMessage({ role: "user", text: item.query });
-    appendMessage({
-      role: "reply",
-      text: item.reponse || "Pas de réponse enregistrée.",
-      reference: item.reference || null
+
+    let sessionExchanges = [item];
+    if (item.session_id) {
+      const sameSession = state.historyItems.filter((i) => i.session_id === item.session_id);
+      if (sameSession.length > 1) {
+        sameSession.sort((a, b) => new Date(a.raw_created_at) - new Date(b.raw_created_at));
+        sessionExchanges = sameSession;
+      }
+    }
+
+    sessionExchanges.forEach((exchange) => {
+      appendMessage({ role: "user", text: exchange.query });
+      appendMessage({
+        role: "reply",
+        text: exchange.reponse || "Pas de réponse enregistrée.",
+        reference: exchange.reference || null
+      });
     });
+
     showScreen("chat");
   }
 
