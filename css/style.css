@@ -107,6 +107,15 @@ button, input {
 
 .icon-btn:hover { background: var(--surface); }
 
+.icon-btn--home img {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+.icon-btn--home:hover img { opacity: 1; }
+
 /* ---------------------------------------------------------------
    Screen body / generic
 ----------------------------------------------------------------*/
@@ -127,7 +136,7 @@ button, input {
 /* ---------------------------------------------------------------
    Écran 1 — accueil / choix du client
    Pas de topbar sur cet écran — façade volontairement sobre, un
-   seul choix mis en avant (voir frontend, session du 10 sept. 2026).
+   seul choix mis en avant.
 ----------------------------------------------------------------*/
 .screen--welcome {
   justify-content: stretch;
@@ -139,7 +148,7 @@ button, input {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 12vh 24px calc(24px + var(--safe-bottom));
+  padding: 8vh 24px calc(20px + var(--safe-bottom));
   min-height: 0;
   overflow-y: auto;
 }
@@ -150,40 +159,39 @@ button, input {
   align-items: stretch;
   width: 100%;
   max-width: 380px;
-  gap: 28px;
+  gap: 22px;
   margin: auto 0;
 }
 
 .welcome__kicker {
-  margin: 0;
+  margin: 0 0 6px;
   text-align: center;
   font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .welcome__clients {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .screen--welcome .client-card {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: row;
-  gap: 0;
-  height: 108px;
+  height: 100px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid transparent;
   border-radius: var(--radius);
-  padding: 0 28px;
+  padding: 0;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .screen--welcome .client-card:hover,
@@ -193,23 +201,50 @@ button, input {
 
 .client-card--csem {
   border-left-color: var(--csem);
-  background: linear-gradient(to right, var(--csem-tint), var(--surface) 40%);
+  background: linear-gradient(to right, var(--csem-tint), var(--surface) 45%);
 }
 
 .client-card--hq {
   border-left-color: var(--hq);
-  background: linear-gradient(to right, var(--hq-tint), var(--surface) 40%);
+  background: linear-gradient(to right, var(--hq-tint), var(--surface) 45%);
+}
+
+/* Repère discret dans le coin, en clin d'œil aux cartouches de plans
+   techniques (croix de repérage) — visible seulement au survol/focus
+   pour rester sobre par défaut. */
+.screen--welcome .client-card::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  border-top: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  color: var(--border);
+  opacity: 0.8;
+}
+
+.screen--welcome .client-card::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  color: var(--border);
+  opacity: 0.8;
 }
 
 .client-card__logo {
-  max-height: 56px;
-  max-width: 100%;
+  /* Boîte identique pour les deux logos, peu importe leur format
+     d'origine — évite l'asymétrie de taille entre CSEM et HQ. */
+  width: 200px;
+  height: 56px;
   object-fit: contain;
-  /* Les logos fournis ont un fond blanc plein — plaque claire discrète
-     plutôt que de les laisser flotter sur le fond sombre. */
-  background: #fff;
-  border-radius: 6px;
-  padding: 8px 14px;
+  object-position: center;
 }
 
 .welcome__other {
@@ -242,11 +277,10 @@ button, input {
 }
 
 .welcome__gtek-mark {
-  height: 16px;
+  height: 20px;
   width: auto;
   object-fit: contain;
-  filter: grayscale(1) brightness(1.6);
-  opacity: 0.7;
+  opacity: 0.9;
 }
 
 /* ---------------------------------------------------------------
