@@ -14,6 +14,11 @@
     historyItems: []        // dernière liste d'historique chargée (pour regrouper par session)
   };
 
+  const CLIENT_LABELS = {
+    csem: "CSEM",
+    hq: "Hydro-Québec"
+  };
+
   const $ = (sel) => document.querySelector(sel);
   const screens = document.querySelectorAll(".screen");
 
@@ -36,6 +41,22 @@
   // ---------------------------------------------------------------
   document.querySelectorAll(".client-card[data-client]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      const client = btn.dataset.client;
+
+      // "Autres clients" n'a pas encore de backend — état simple en attendant
+      // un vrai projet privé à brancher.
+      if (client === "autre") {
+        alert("Autres clients — à connecter au backend d'ingestion quand un projet privé arrive.");
+        return;
+      }
+
+      // Thème par client (bleu CSEM / orange HQ) — voir css/style.css,
+      // body[data-client="..."] réécrit les variables d'accent.
+      document.body.dataset.client = client;
+
+      const label = $("#chantier-list-label");
+      if (label) label.textContent = CLIENT_LABELS[client] || "Chantiers";
+
       renderChantierList();
       showScreen("chantier");
     });
@@ -47,7 +68,9 @@
   function renderChantierList() {
     const list = $("#chantier-list");
     list.innerHTML = "";
-    CONFIG.CHANTIERS.forEach((chantier) => {
+    const currentClient = document.body.dataset.client;
+    const chantiers = CONFIG.CHANTIERS.filter((c) => c.client === currentClient);
+    chantiers.forEach((chantier) => {
       const btn = document.createElement("button");
       btn.className = "chantier-card";
       btn.innerHTML = `
