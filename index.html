@@ -6,6 +6,9 @@
 <title>Recherche chantier</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#12151A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,22 +16,28 @@
 <div id="app">
 
   <!-- Écran 1 — Choix du client -->
-  <section class="screen" id="screen-client" data-screen="client">
-    <header class="topbar topbar--root">
-      <h1>Recherche chantier</h1>
-    </header>
-    <div class="screen-body">
-      <p class="intro">Choisis le donneur d'ouvrage pour commencer.</p>
-      <div class="client-list">
-        <button class="client-card" data-client="csem">
-          <span class="client-card__name">CSEM</span>
-          <span class="client-card__sub">Commission des services électriques de Montréal</span>
-        </button>
-        <button class="client-card" disabled>
-          <span class="client-card__name">Hydro-Québec</span>
-          <span class="client-card__sub">Bientôt disponible</span>
-        </button>
+  <section class="screen screen--welcome" id="screen-client" data-screen="client">
+    <div class="welcome">
+      <div class="welcome__inner">
+        <p class="welcome__kicker">Recherche technique de chantier</p>
+
+        <div class="welcome__clients">
+          <button class="client-card client-card--csem" data-client="csem">
+            <img class="client-card__logo" src="img/logo-csem.webp" alt="Commission des services électriques de Montréal">
+          </button>
+
+          <button class="client-card client-card--hq" data-client="hq">
+            <img class="client-card__logo client-card__logo--hq" src="img/logo-hq.jpg" alt="Hydro-Québec">
+          </button>
+        </div>
+
+        <button type="button" class="welcome__other" data-client="autre">Autres clients</button>
       </div>
+
+      <footer class="welcome__footer">
+        <img class="welcome__gtek-mark" src="img/logo-gtek.jpg" alt="">
+        <span>G-TEK</span>
+      </footer>
     </div>
   </section>
 
@@ -38,7 +47,7 @@
       <button class="icon-btn" data-nav="client" aria-label="Retour">
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <h1>CSEM</h1>
+      <h1 id="chantier-list-label">Chantiers</h1>
     </header>
     <div class="screen-body">
       <div class="chantier-list" id="chantier-list"><!-- injecté par app.js --></div>
