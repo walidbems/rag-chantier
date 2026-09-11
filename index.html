@@ -19,15 +19,15 @@
   <section class="screen screen--welcome" id="screen-client" data-screen="client">
     <div class="welcome">
       <div class="welcome__inner">
-        <p class="welcome__kicker">Recherche technique de chantier</p>
+        <p class="welcome__kicker">Recherche chantier</p>
 
         <div class="welcome__clients">
           <button class="client-card client-card--csem" data-client="csem">
-            <img class="client-card__logo" src="img/logo-csem.webp" alt="Commission des services électriques de Montréal">
+            <img class="client-card__logo" src="img/logo-csem.png" alt="Commission des services électriques de Montréal">
           </button>
 
           <button class="client-card client-card--hq" data-client="hq">
-            <img class="client-card__logo client-card__logo--hq" src="img/logo-hq.jpg" alt="Hydro-Québec">
+            <img class="client-card__logo" src="img/logo-hq.png" alt="Hydro-Québec">
           </button>
         </div>
 
@@ -35,7 +35,7 @@
       </div>
 
       <footer class="welcome__footer">
-        <img class="welcome__gtek-mark" src="img/logo-gtek.jpg" alt="">
+        <img class="welcome__gtek-mark" src="img/logo-gtek.png" alt="">
         <span>G-TEK</span>
       </footer>
     </div>
@@ -48,6 +48,9 @@
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <h1 id="chantier-list-label">Chantiers</h1>
+      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
+        <img src="img/logo-gtek.png" alt="">
+      </button>
     </header>
     <div class="screen-body">
       <div class="chantier-list" id="chantier-list"><!-- injecté par app.js --></div>
@@ -67,6 +70,9 @@
       <h1 id="chat-chantier-label">Chantier</h1>
       <button class="icon-btn" data-nav="history" aria-label="Historique">
         <svg viewBox="0 0 24 24" width="19" height="19"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
+        <img src="img/logo-gtek.png" alt="">
       </button>
     </header>
 
@@ -101,6 +107,9 @@
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <h1 id="history-chantier-label">Historique</h1>
+      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
+        <img src="img/logo-gtek.png" alt="">
+      </button>
     </header>
     <div class="screen-body">
       <div class="history-list" id="history-list"></div>
