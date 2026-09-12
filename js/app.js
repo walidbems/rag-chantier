@@ -6,18 +6,32 @@
   // vit côté serveur dans Supabase, interrogé via HISTORY_WEBHOOK_URL)
   // ---------------------------------------------------------------
   const state = {
-    activeChantier: null,   // { id, code, nom }
+    activeChantier: null,   // { id, code, nom, client }
     pendingImage: null,     // { file, dataUrl }
     isRecording: false,
     mediaRecorder: null,
     audioChunks: [],
-    historyItems: []        // dernière liste d'historique chargée (pour regrouper par session)
+    historyItems: []        // dernière liste d'historique chargée (pour regrouper par session/date)
   };
 
   const CLIENT_LABELS = {
     csem: "CSEM",
     hq: "Hydro-Québec"
   };
+
+  const EMPTY_STATE_HTML = `
+    <p class="label-tech">Aucune question posée</p>
+    <p class="empty-state__title">Posez votre question sur ce chantier</p>
+    <p class="empty-state__sub">Par texte, dictée vocale ou photo d'un plan. La réponse cite toujours le devis, le dessin ou l'article exact.</p>
+    <ul class="empty-state__examples">
+      <li>« Recouvrement minimal en chaussée ? »</li>
+      <li>« Dimensions d'un massif à 2 conduits ? »</li>
+      <li>« Entraxe des séparateurs 115 mm ? »</li>
+    </ul>
+  `;
+
+  const CHEVRON_SVG = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const FILE_ICON_SVG = `<svg viewBox="0 0 24 24" width="11" height="11"><path d="M7 3h8l4 4v14H5V3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
 
   const $ = (sel) => document.querySelector(sel);
   const screens = document.querySelectorAll(".screen");
@@ -39,27 +53,26 @@
   // ---------------------------------------------------------------
   // Écran 1 — choix du client
   // ---------------------------------------------------------------
-  document.querySelectorAll(".client-card[data-client]").forEach((btn) => {
+  document.querySelectorAll(".pick-card[data-client]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const client = btn.dataset.client;
-
-      // "Autres clients" n'a pas encore de backend — état simple en attendant
-      // un vrai projet privé à brancher.
-      if (client === "autre") {
-        alert("Autres clients — à connecter au backend d'ingestion quand un projet privé arrive.");
-        return;
-      }
-
-      // Thème par client (bleu CSEM / orange HQ) — voir css/style.css,
-      // body[data-client="..."] réécrit les variables d'accent.
       document.body.dataset.client = client;
 
+      const clientLabel = CLIENT_LABELS[client] || "Chantiers";
+      const overline = $("#chantier-list-overline");
       const label = $("#chantier-list-label");
-      if (label) label.textContent = CLIENT_LABELS[client] || "Chantiers";
+      if (overline) overline.textContent = "Client actif";
+      if (label) label.textContent = clientLabel;
 
       renderChantierList();
       showScreen("chantier");
     });
+  });
+
+  $('[data-client="autre"]').addEventListener("click", () => {
+    // "Autres clients" n'a pas encore de backend — état simple en attendant
+    // un vrai projet privé à brancher.
+    alert("Autres clients — à connecter au backend d'ingestion quand un projet privé arrive.");
   });
 
   // ---------------------------------------------------------------
@@ -70,12 +83,21 @@
     list.innerHTML = "";
     const currentClient = document.body.dataset.client;
     const chantiers = CONFIG.CHANTIERS.filter((c) => c.client === currentClient);
+
+    const countLabel = $("#chantier-count-label");
+    if (countLabel) countLabel.textContent = `Chantiers · ${chantiers.length}`;
+
     chantiers.forEach((chantier) => {
       const btn = document.createElement("button");
       btn.className = "chantier-card";
       btn.innerHTML = `
-        <span class="chantier-card__code">${chantier.code}</span>
-        <span class="chantier-card__name">${chantier.nom}</span>
+        <span class="chantier-card__bar"></span>
+        <span class="chantier-card__body">
+          <span class="chantier-card__code">${chantier.code}</span>
+          <span class="chantier-card__name">${chantier.nom}</span>
+          ${chantier.district ? `<span class="chantier-card__district">${chantier.district}</span>` : ""}
+        </span>
+        <span class="chantier-card__chevron">${CHEVRON_SVG}</span>
       `;
       btn.addEventListener("click", () => openChantier(chantier));
       list.appendChild(btn);
@@ -91,8 +113,13 @@
   function openChantier(chantier) {
     state.activeChantier = chantier;
     state.sessionId = crypto.randomUUID();
-    $("#chat-chantier-label").textContent = `${chantier.code} – ${chantier.nom}`;
-    $("#history-chantier-label").textContent = `Historique — ${chantier.code}`;
+
+    const clientLabel = CLIENT_LABELS[chantier.client] || chantier.client;
+    $("#chat-chantier-overline").textContent = `${chantier.code} · ${chantier.nom}`;
+    $("#chat-chantier-label").textContent = chantier.nom;
+    $("#history-chantier-overline").textContent = `${chantier.code} · ${chantier.nom}`;
+    $("#history-chantier-label").textContent = "Historique";
+
     resetThread();
     showScreen("chat");
   }
@@ -101,11 +128,7 @@
   // Écran 3 — chat / composer
   // ---------------------------------------------------------------
   function resetThread() {
-    $("#thread").innerHTML = `
-      <div class="empty-state" id="empty-state">
-        <p>Décris ce que tu cherches. Un article de devis, un dessin normalisé,
-        un code de paiement — parle, tape, ou montre une photo.</p>
-      </div>`;
+    $("#thread").innerHTML = `<div class="empty-state" id="empty-state">${EMPTY_STATE_HTML}</div>`;
   }
 
   function appendMessage({ role, text, imageDataUrl, reference }) {
@@ -118,8 +141,10 @@
 
     let html = "";
     if (imageDataUrl) html += `<img class="msg__thumb" src="${imageDataUrl}" alt="">`;
-    if (text) html += `<div>${escapeHtml(text)}</div>`;
-    if (reference) html += `<span class="msg__ref">${escapeHtml(reference)}</span>`;
+    if (text) html += `<p class="msg__text">${escapeHtml(text)}</p>`;
+    if (reference) {
+      html += `<p class="msg__ref"><span class="msg__ref-icon">${FILE_ICON_SVG}</span><span>${escapeHtml(reference)}</span></p>`;
+    }
 
     bubble.innerHTML = html;
     thread.appendChild(bubble);
@@ -237,6 +262,15 @@
     input.value = "";
   });
 
+  // La zone de saisie est un <textarea> (pour l'auto-agrandissement sur
+  // plusieurs lignes) — Entrée seule envoie, Maj+Entrée insère un saut de ligne.
+  $("#text-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      $("#composer").requestSubmit();
+    }
+  });
+
   async function submitQuery({ text = "", audioDataUrl = null } = {}) {
     if (!state.activeChantier) return;
 
@@ -291,11 +325,25 @@
   }
 
   // ---------------------------------------------------------------
-  // Écran 4 — historique (propre à chaque chantier)
+  // Écran 4 — historique (propre à chaque chantier, groupé par date)
   // ---------------------------------------------------------------
   document.querySelectorAll('[data-nav="history"]').forEach((btn) => {
     btn.addEventListener("click", loadHistory);
   });
+
+  function dateGroupLabel(rawDate) {
+    const d = new Date(rawDate);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString()) return "Aujourd'hui";
+    if (d.toDateString() === yesterday.toDateString()) return "Hier";
+    return d.toLocaleDateString("fr-CA", { day: "numeric", month: "long" });
+  }
+
+  function timeLabel(rawDate) {
+    return new Date(rawDate).toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" });
+  }
 
   async function loadHistory() {
     const list = $("#history-list");
@@ -317,16 +365,48 @@
         return;
       }
 
-      list.innerHTML = "";
+      // Regroupe par jour (Aujourd'hui / Hier / date), le plus récent d'abord —
+      // items arrive déjà trié plus récent en premier par le backend.
+      const groups = [];
       items.forEach((item) => {
-        const btn = document.createElement("button");
-        btn.className = "history-card";
-        btn.innerHTML = `
-          <span class="history-card__date">${escapeHtml(item.date)}</span>
-          <span class="history-card__query">${escapeHtml(item.query)}</span>
+        const groupLabel = dateGroupLabel(item.raw_created_at);
+        let group = groups.find((g) => g.label === groupLabel);
+        if (!group) {
+          group = { label: groupLabel, items: [] };
+          groups.push(group);
+        }
+        group.items.push(item);
+      });
+
+      list.innerHTML = "";
+      groups.forEach((group) => {
+        const section = document.createElement("div");
+        section.className = "history-group";
+        section.innerHTML = `
+          <div class="divider">
+            <p class="label-tech">${escapeHtml(group.label)}</p>
+            <span class="divider__rule"></span>
+          </div>
+          <div class="history-list-inner"></div>
         `;
-        btn.addEventListener("click", () => loadHistoryItem(item));
-        list.appendChild(btn);
+        const inner = section.querySelector(".history-list-inner");
+
+        group.items.forEach((item) => {
+          const btn = document.createElement("button");
+          btn.className = "history-card";
+          btn.innerHTML = `
+            <span class="history-card__body">
+              <span class="history-card__time">${escapeHtml(timeLabel(item.raw_created_at))}</span>
+              <span class="history-card__query">${escapeHtml(item.query)}</span>
+              ${item.reference ? `<span class="history-card__ref">${FILE_ICON_SVG}<span>${escapeHtml(item.reference)}</span></span>` : ""}
+            </span>
+            <span class="history-card__chevron">${CHEVRON_SVG}</span>
+          `;
+          btn.addEventListener("click", () => loadHistoryItem(item));
+          inner.appendChild(btn);
+        });
+
+        list.appendChild(section);
       });
     } catch (err) {
       list.innerHTML = `<p class="history-empty">Erreur de chargement de l'historique.</p>`;
@@ -336,9 +416,7 @@
   // Charge un échange de l'historique dans le fil de discussion. Si l'échange
   // fait partie d'une session à plusieurs questions (même session_id), on
   // reconstitue TOUTE la session dans l'ordre chronologique — pas juste
-  // l'échange cliqué. Si session_id est absent (anciennes lignes avant le
-  // correctif backend) ou si un seul échange existe pour cette session, on
-  // affiche simplement cet échange seul.
+  // l'échange cliqué.
   function loadHistoryItem(item) {
     resetThread();
 

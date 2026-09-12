@@ -8,13 +8,12 @@ const CONFIG = {
   // URL du webhook qui retourne l'historique d'un chantier (optionnel,
   // peut être le même workflow avec une route différente).
   HISTORY_WEBHOOK_URL: "https://bems.app.n8n.cloud/webhook/06aee4a7-a6f0-468f-96ef-be79ca5f1763",
-  // Liste des chantiers, tous clients confondus. Le champ "client" (csem/hq)
-  // sert à filtrer l'affichage selon le client choisi à l'écran d'accueil
-  // (voir renderChantierList dans app.js). À terme, ceci viendra de
-  // Supabase (table "chantiers") via un appel au chargement de l'app
-  // plutôt qu'en dur ici.
+  // Liste des chantiers, tous clients confondus. "client" (csem/hq) sert au
+  // filtrage par client choisi à l'écran d'accueil. "district" est
+  // l'arrondissement/quartier, affiché sous le nom du chantier. À terme,
+  // ceci viendra de Supabase (table "chantiers") plutôt qu'en dur ici.
   CHANTIERS: [
-    { id: "c467", code: "C467", nom: "Duroking / Maurice-Duplessis", client: "csem" },
-    { id: "c468", code: "C468", nom: "Duroking / Notre-Dame", client: "csem" }
+    { id: "c467", code: "C467", nom: "Duroking / Maurice-Duplessis", client: "csem", district: "Montréal-Nord · Rivière-des-Prairies" },
+    { id: "c468", code: "C468", nom: "Duroking / Notre-Dame", client: "csem", district: "Montréal-Est · Pointe-aux-Trembles" }
   ]
 };
