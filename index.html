@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recherche chantier</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#12151A">
+<meta name="theme-color" content="#15181D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,25 +18,64 @@
   <!-- Écran 1 — Choix du client -->
   <section class="screen screen--welcome" id="screen-client" data-screen="client">
     <div class="welcome">
+      <div class="welcome__grid"></div>
+      <div class="welcome__glow"></div>
+
       <div class="welcome__inner">
-        <p class="welcome__kicker">Recherche chantier</p>
+        <h1 class="welcome__title">G-TEK<span>Terrain</span></h1>
+        <p class="welcome__tagline">Une question technique, une réponse sourcée : devis, dessins normalisés et plans de chantier.</p>
+
+        <div class="divider">
+          <p class="label-tech">Choisir le client</p>
+          <span class="divider__rule"></span>
+        </div>
 
         <div class="welcome__clients">
-          <button class="client-card client-card--csem" data-client="csem">
-            <img class="client-card__logo" src="img/logo-csem.png" alt="Commission des services électriques de Montréal">
+          <button class="pick-card" data-client="csem">
+            <span class="pick-card__logo"><img src="img/logo-csem.png" alt="Commission des services électriques de Montréal"></span>
+            <span class="pick-card__text">
+              <span class="pick-card__name">CSEM</span>
+              <span class="pick-card__sub">Commission des services électriques de Montréal</span>
+            </span>
+            <svg class="pick-card__chevron" viewBox="0 0 24 24" width="20" height="20"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
 
-          <button class="client-card client-card--hq" data-client="hq">
-            <img class="client-card__logo" src="img/logo-hq.png" alt="Hydro-Québec">
+          <button class="pick-card" data-client="hq">
+            <span class="pick-card__logo"><img src="img/logo-hq.png" alt="Hydro-Québec"></span>
+            <span class="pick-card__text">
+              <span class="pick-card__name">Hydro-Québec</span>
+              <span class="pick-card__sub">Réseau de distribution souterrain</span>
+            </span>
+            <svg class="pick-card__chevron" viewBox="0 0 24 24" width="20" height="20"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
 
         <button type="button" class="welcome__other" data-client="autre">Autres clients</button>
+
+        <div class="stats-card">
+          <p class="label-tech">Sources indexées</p>
+          <div class="stats-card__grid">
+            <div class="stats-card__cell">
+              <span class="stats-card__num">168</span>
+              <span class="stats-card__lbl">Dessins norm.</span>
+            </div>
+            <div class="stats-card__cell">
+              <span class="stats-card__num">971</span>
+              <span class="stats-card__lbl">Art. de devis</span>
+            </div>
+            <div class="stats-card__cell">
+              <span class="stats-card__num">2</span>
+              <span class="stats-card__lbl">Chantiers</span>
+            </div>
+          </div>
+          <p class="stats-card__updated">Dernière mise à jour · 2026-09-09</p>
+        </div>
       </div>
 
       <footer class="welcome__footer">
         <img class="welcome__gtek-mark" src="img/logo-gtek.png" alt="">
         <span>G-TEK</span>
+        <span class="welcome__version">v0.1</span>
       </footer>
     </div>
   </section>
@@ -47,12 +86,19 @@
       <button class="icon-btn" data-nav="client" aria-label="Retour">
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <h1 id="chantier-list-label">Chantiers</h1>
-      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
-        <img src="img/logo-gtek.png" alt="">
+      <div class="topbar__titles">
+        <p class="label-tech" id="chantier-list-overline">Client actif</p>
+        <h1 id="chantier-list-label">Chantiers</h1>
+      </div>
+      <button class="icon-btn" data-nav="client" aria-label="Accueil">
+        <svg viewBox="0 0 24 24" width="19" height="19"><path d="M4 11l8-7 8 7M6 10v9h12v-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </header>
     <div class="screen-body">
+      <div class="divider">
+        <p class="label-tech" id="chantier-count-label">Chantiers</p>
+        <span class="divider__rule"></span>
+      </div>
       <div class="chantier-list" id="chantier-list"><!-- injecté par app.js --></div>
       <button class="add-chantier" id="btn-add-chantier">
         <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -67,19 +113,29 @@
       <button class="icon-btn" data-nav="chantier" aria-label="Retour">
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <h1 id="chat-chantier-label">Chantier</h1>
+      <div class="topbar__titles">
+        <p class="label-tech" id="chat-chantier-overline">Chantier</p>
+        <h1 id="chat-chantier-label">Chantier</h1>
+      </div>
       <button class="icon-btn" data-nav="history" aria-label="Historique">
         <svg viewBox="0 0 24 24" width="19" height="19"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
-        <img src="img/logo-gtek.png" alt="">
+      <button class="icon-btn" data-nav="client" aria-label="Accueil">
+        <svg viewBox="0 0 24 24" width="19" height="19"><path d="M4 11l8-7 8 7M6 10v9h12v-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </header>
 
     <div class="screen-body screen-body--chat">
       <div class="thread" id="thread">
         <div class="empty-state" id="empty-state">
-          <p>Décris ce que tu cherches. Un article de devis, un dessin normalisé, un code de paiement — parle, tape, ou montre une photo.</p>
+          <p class="label-tech">Aucune question posée</p>
+          <p class="empty-state__title">Posez votre question sur ce chantier</p>
+          <p class="empty-state__sub">Par texte, dictée vocale ou photo d'un plan. La réponse cite toujours le devis, le dessin ou l'article exact.</p>
+          <ul class="empty-state__examples">
+            <li>« Recouvrement minimal en chaussée ? »</li>
+            <li>« Dimensions d'un massif à 2 conduits ? »</li>
+            <li>« Entraxe des séparateurs 115 mm ? »</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -89,10 +145,12 @@
       <button type="button" class="composer__btn" id="btn-camera" aria-label="Ajouter une photo">
         <svg viewBox="0 0 24 24" width="19" height="19"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
       </button>
-      <input type="text" id="text-input" class="composer__input" placeholder="Décris ce que tu cherches" autocomplete="off">
-      <button type="button" class="composer__btn composer__btn--mic" id="btn-mic" aria-label="Recherche vocale">
-        <svg viewBox="0 0 24 24" width="18" height="18"><rect x="9" y="2" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
+      <div class="composer__field">
+        <textarea id="text-input" class="composer__input" rows="1" placeholder="Poser une question…"></textarea>
+        <button type="button" class="composer__mic" id="btn-mic" aria-label="Recherche vocale">
+          <svg viewBox="0 0 24 24" width="18" height="18"><rect x="9" y="2" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <button type="submit" class="composer__btn composer__btn--send" id="btn-send" aria-label="Envoyer">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -106,10 +164,10 @@
       <button class="icon-btn" data-nav="chat" aria-label="Retour">
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <h1 id="history-chantier-label">Historique</h1>
-      <button class="icon-btn icon-btn--home" data-nav="client" aria-label="Accueil">
-        <img src="img/logo-gtek.png" alt="">
-      </button>
+      <div class="topbar__titles">
+        <p class="label-tech" id="history-chantier-overline">Chantier</p>
+        <h1 id="history-chantier-label">Historique</h1>
+      </div>
     </header>
     <div class="screen-body">
       <div class="history-list" id="history-list"></div>
