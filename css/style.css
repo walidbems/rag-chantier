@@ -1,32 +1,30 @@
 /* ---------------------------------------------------------------
-   Tokens
-   Fond sombre (lisibilité en extérieur / basse lumière),
-   accent jaune sécurité, chasse fixe pour les références techniques.
+   Tokens — valeurs approchées des tokens OKLCH du projet Lovable,
+   converties en hex pour rester cohérent avec le reste du fichier.
 ----------------------------------------------------------------*/
 :root {
-  --bg: #12151a;
-  --surface: #1b1f26;
-  --surface-raised: #232833;
-  --border: #2a2f3a;
-  --text: #edeff2;
-  --text-muted: #92a0ac;
+  --bg: #14171c;
+  --surface: #1c2027;
+  --surface-2: #242832;
+  --border: #2f3540;
+  --border-strong: #454d5a;
+  --text: #f5f6f7;
+  --text-muted: #a9b2ba;
   --accent: #ffb627;
   --accent-ink: #14181c;
   --danger: #e8590c;
 
-  /* Couleurs de marque — écran d'accueil + thème léger une fois
-     un client sélectionné (voir body[data-client] plus bas). */
-  --csem: #1e3a6d;
-  --csem-tint: #1e3a6d1a;
-  --hq: #f5a623;
-  --hq-tint: #f5a6231a;
-  --gtek: #1e7a44;
+  --csem: #5b7fd4;
+  --csem-soft: #5b7fd433;
+  --hq: #f0a63d;
+  --hq-soft: #f0a63d33;
+  --gtek: #2f9e5f;
 
-  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "IBM Plex Mono", Menlo, Consolas, monospace;
-  --font-display: "Space Grotesk", var(--font-ui);
+  --font-ui: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-display: "Barlow Condensed", var(--font-ui);
 
-  --radius: 10px;
+  --radius: 12px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -41,7 +39,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input {
+button, input, textarea {
   font-family: inherit;
   color: inherit;
 }
@@ -63,58 +61,83 @@ button, input {
   min-height: 0;
 }
 
-.screen[hidden] {
-  display: none;
+.screen[hidden] { display: none; }
+
+/* Étiquette façon cartouche de plan technique (mono, majuscules, espacé) —
+   reprend le motif des cartouches CSEM (FEUILLET / DESSIN / TITRE). */
+.label-tech {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
 }
+
+/* Motif "étiquette + filet" réutilisé pour séparer les sections
+   (Choisir le client / Chantiers · N / groupes de dates). */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* ---------------------------------------------------------------
    Topbar
 ----------------------------------------------------------------*/
 .topbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: color-mix(in srgb, var(--bg) 95%, transparent);
+  backdrop-filter: blur(6px);
+  z-index: 5;
 }
 
+.topbar__titles { flex: 1; min-width: 0; }
+.topbar__titles .label-tech { margin-bottom: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .topbar h1 {
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 19px;
   font-weight: 600;
+  letter-spacing: 0.01em;
   margin: 0;
-  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.topbar--root h1 {
-  font-size: 18px;
-}
-
 .icon-btn {
-  background: none;
-  border: none;
-  padding: 6px;
-  margin: -6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: border-color 0.12s ease, transform 0.12s ease;
 }
 
-.icon-btn:hover { background: var(--surface); }
-
-.icon-btn--home img {
-  height: 18px;
-  width: auto;
-  object-fit: contain;
-  opacity: 0.85;
-}
-
-.icon-btn--home:hover img { opacity: 1; }
+.icon-btn:active { border-color: var(--border-strong); transform: scale(0.96); }
 
 /* ---------------------------------------------------------------
    Screen body / generic
@@ -126,167 +149,248 @@ button, input {
   padding: 16px;
 }
 
-.intro {
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 4px 0 20px;
-}
-
 /* ---------------------------------------------------------------
    Écran 1 — accueil / choix du client
-   Pas de topbar sur cet écran — façade volontairement sobre, un
-   seul choix mis en avant.
 ----------------------------------------------------------------*/
-.screen--welcome {
-  justify-content: stretch;
-}
+.screen--welcome { justify-content: stretch; }
 
 .welcome {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8vh 24px calc(20px + var(--safe-bottom));
-  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding: 40px 16px 20px;
+}
+
+.welcome__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.welcome__glow {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 260px;
+  pointer-events: none;
+  background: radial-gradient(70% 100% at 50% 0%, color-mix(in srgb, var(--gtek) 22%, transparent), transparent 70%);
 }
 
 .welcome__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  position: relative;
   width: 100%;
-  max-width: 380px;
-  gap: 22px;
-  margin: auto 0;
+  max-width: 420px;
+  margin: 0 auto;
+  flex: 1;
 }
 
-.welcome__kicker {
-  margin: 0 0 6px;
-  text-align: center;
+.welcome__title {
+  margin: 4px 0 0;
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 22px;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-size: 42px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  color: var(--gtek);
+}
+
+.welcome__title span {
+  display: block;
   color: var(--text);
 }
+
+.welcome__tagline {
+  margin: 12px 0 0;
+  max-width: 280px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.welcome .divider { margin-top: 32px; }
 
 .welcome__clients {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 16px;
 }
 
-.screen--welcome .client-card {
-  position: relative;
+.pick-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.pick-card:active { border-color: var(--border-strong); transform: scale(0.985); }
+
+.pick-card__logo {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: var(--radius);
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  overflow: hidden;
+  padding: 8px;
 }
 
-.screen--welcome .client-card:hover,
-.screen--welcome .client-card:focus-visible {
-  background: var(--surface-raised);
-}
-
-.client-card--csem {
-  border-left-color: var(--csem);
-  background: linear-gradient(to right, var(--csem-tint), var(--surface) 45%);
-}
-
-.client-card--hq {
-  border-left-color: var(--hq);
-  background: linear-gradient(to right, var(--hq-tint), var(--surface) 45%);
-}
-
-/* Repère discret dans le coin, en clin d'œil aux cartouches de plans
-   techniques (croix de repérage) — visible seulement au survol/focus
-   pour rester sobre par défaut. */
-.screen--welcome .client-card::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 8px;
-  height: 8px;
-  border-top: 1px solid currentColor;
-  border-left: 1px solid currentColor;
-  color: var(--border);
-  opacity: 0.8;
-}
-
-.screen--welcome .client-card::after {
-  content: "";
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  border-bottom: 1px solid currentColor;
-  border-right: 1px solid currentColor;
-  color: var(--border);
-  opacity: 0.8;
-}
-
-.client-card__logo {
-  /* Boîte identique pour les deux logos, peu importe leur format
-     d'origine — évite l'asymétrie de taille entre CSEM et HQ. */
-  width: 200px;
-  height: 56px;
+.pick-card__logo img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  object-position: center;
+}
+
+.pick-card__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.pick-card__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pick-card__sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pick-card__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .welcome__other {
-  align-self: center;
+  margin-top: 12px;
+  width: 100%;
   background: none;
-  border: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
   color: var(--text-muted);
   font-size: 14px;
-  text-decoration: underline;
-  text-decoration-color: var(--border);
-  text-underline-offset: 3px;
+  font-weight: 500;
+  padding: 14px;
   cursor: pointer;
-  padding: 4px;
 }
 
-.welcome__other:hover,
-.welcome__other:focus-visible {
-  color: var(--text);
+.welcome__other:hover { color: var(--text); }
+
+.stats-card {
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  padding: 16px;
+}
+
+.stats-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.stats-card__cell {
+  text-align: center;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  padding: 10px 4px;
+}
+
+.stats-card__num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.stats-card__lbl {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stats-card__updated {
+  margin: 12px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .welcome__footer {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-display);
   font-size: 13px;
   letter-spacing: 0.04em;
-  flex-shrink: 0;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .welcome__gtek-mark {
-  height: 20px;
+  height: 26px;
   width: auto;
   object-fit: contain;
+  background: #fff;
+  border-radius: 5px;
+  padding: 3px 6px;
   opacity: 0.9;
 }
 
+.welcome__version {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
 /* ---------------------------------------------------------------
-   Thème par client — une fois un client choisi (écrans 2, 3, 4),
-   l'accent reprend la couleur de marque au lieu du jaune par défaut.
-   Appliqué via body[data-client], réglé par app.js à l'ouverture.
+   Thème par client — écrans 2, 3, 4.
 ----------------------------------------------------------------*/
 body[data-client="csem"] { --accent: var(--csem); --accent-ink: #ffffff; }
 body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
@@ -297,13 +401,14 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
 .chantier-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .chantier-card {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: stretch;
+  gap: 14px;
   width: 100%;
   text-align: left;
   background: var(--surface);
@@ -311,51 +416,124 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
   border-radius: var(--radius);
   padding: 14px 16px;
   cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
 }
 
-.chantier-card:active { border-color: var(--accent); }
+.chantier-card:active { border-color: var(--border-strong); transform: scale(0.985); }
+
+.chantier-card__bar {
+  flex-shrink: 0;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.chantier-card__body { min-width: 0; flex: 1; }
 
 .chantier-card__code {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   color: var(--accent);
-  flex-shrink: 0;
 }
 
 .chantier-card__name {
-  font-size: 14px;
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.chantier-card__district {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chantier-card__chevron {
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--text-muted);
+}
+
 .add-chantier {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   width: 100%;
   background: none;
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-strong);
   border-radius: var(--radius);
-  color: var(--text-muted);
-  font-size: 13px;
-  padding: 12px 16px;
-  margin-top: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px;
+  margin-top: 14px;
   cursor: pointer;
 }
 
 /* ---------------------------------------------------------------
    Écran 3 — chat
 ----------------------------------------------------------------*/
-.screen-body--chat {
-  padding-bottom: 8px;
-}
+.screen-body--chat { padding-bottom: 8px; }
 
 .empty-state {
-  color: var(--text-muted);
+  position: relative;
+  overflow: hidden;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.empty-state::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.empty-state > * { position: relative; }
+
+.empty-state__title {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.empty-state__sub {
+  margin: 8px 0 0;
   font-size: 13.5px;
-  line-height: 1.6;
-  padding: 24px 8px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.empty-state__examples {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
 }
 
 .thread {
@@ -386,16 +564,22 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
   border-bottom-left-radius: 3px;
 }
 
+.msg__text { margin: 0; }
+
 .msg__ref {
-  display: inline-block;
-  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--accent);
-  background: rgba(255, 182, 39, 0.1);
-  padding: 3px 7px;
-  border-radius: 5px;
 }
+
+.msg__ref-icon { flex-shrink: 0; margin-top: 1px; }
 
 .msg__thumb {
   display: block;
@@ -406,38 +590,25 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
 
 .composer {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 8px;
   padding: 10px 12px calc(10px + var(--safe-bottom));
   border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  backdrop-filter: blur(6px);
   flex-shrink: 0;
 }
 
-.composer__input {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 10px 14px;
-  font-size: 14px;
-  min-width: 0;
-}
-
-.composer__input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
 .composer__btn {
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 10px;
   color: var(--text);
   cursor: pointer;
 }
@@ -448,11 +619,48 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
   color: var(--accent-ink);
 }
 
-.composer__btn--mic.is-recording {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
+.composer__field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
+
+.composer__field:focus-within { border-color: var(--border-strong); }
+
+.composer__input {
+  flex: 1;
+  min-width: 0;
+  max-height: 112px;
+  min-height: 48px;
+  resize: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 13px 4px 13px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.composer__input::placeholder { color: var(--text-muted); }
+
+.composer__mic {
+  flex-shrink: 0;
+  width: 44px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.composer__mic.is-recording { color: var(--danger); }
 
 .attachment-preview {
   display: flex;
@@ -479,41 +687,67 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
 }
 
 /* ---------------------------------------------------------------
-   Écran 4 — historique
+   Écran 4 — historique (groupé par date)
 ----------------------------------------------------------------*/
-.history-list {
+.history-group { margin-bottom: 22px; }
+.history-group .divider { margin-bottom: 12px; }
+
+.history-list-inner {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .history-card {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   text-align: left;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 14px;
   cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
 }
 
-.history-card__date {
+.history-card:active { border-color: var(--border-strong); transform: scale(0.985); }
+
+.history-card__body { min-width: 0; flex: 1; }
+
+.history-card__time {
   font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
 }
 
 .history-card__query {
+  display: block;
+  margin-top: 4px;
   font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
 }
+
+.history-card__ref {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-card__chevron { flex-shrink: 0; color: var(--text-muted); }
 
 .history-empty {
   color: var(--text-muted);
@@ -525,7 +759,8 @@ body[data-client="hq"]   { --accent: var(--hq);   --accent-ink: #14181c; }
    Focus visibility / accessibilité
 ----------------------------------------------------------------*/
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
